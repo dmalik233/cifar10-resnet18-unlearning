@@ -36,7 +36,9 @@ if __name__ == "__main__":
     _, _, test_retain, test_forget = splits()
     original = load_model("checkpoints/original_model.pt", device)
     retrained = load_model("checkpoints/retrained_model.pt", device)
+    grad_ascent = load_model("checkpoints/unlearn_gradient_ascent.pt", device)
 
     report("Original", original, retrained, test_retain, test_forget, device)
     report("Retrained", retrained, retrained, test_retain, test_forget, device)
+    report("Gradient ascent", grad_ascent, retrained, test_retain, test_forget, device)
     
