@@ -3,6 +3,7 @@ from torch.utils.data import Subset
 from torchvision import datasets, transforms
 
 forget_class = 3  # cat
+class_names = ["airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"]
 
 mean = (0.4914, 0.4822, 0.4465)
 std = (0.2470, 0.2435, 0.2616)

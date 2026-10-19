@@ -20,5 +20,3 @@ class ResNet18(ResNet):
 
     def forward(self, x):
         return self.fc(self.features(x))
-
-print(ResNet18())
