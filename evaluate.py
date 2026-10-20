@@ -37,8 +37,10 @@ if __name__ == "__main__":
     original = load_model("checkpoints/original_model.pt", device)
     retrained = load_model("checkpoints/retrained_model.pt", device)
     grad_ascent = load_model("checkpoints/unlearn_gradient_ascent.pt", device)
+    bad_teacher = load_model("checkpoints/unlearn_bad_teacher.pt", device)
 
     report("Original", original, retrained, test_retain, test_forget, device)
     report("Retrained", retrained, retrained, test_retain, test_forget, device)
     report("Gradient ascent", grad_ascent, retrained, test_retain, test_forget, device)
+    report("Bad teacher", bad_teacher, retrained, test_retain, test_forget, device)
     
