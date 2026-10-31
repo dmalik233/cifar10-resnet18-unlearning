@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data import ConcatDataset
 
-from data import load_cifar, splits
+from data import splits
 from evalutils import get_accuracy
 from utils import set_seed, get_device
 from train import train_model

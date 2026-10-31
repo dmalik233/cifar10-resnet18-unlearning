@@ -37,8 +37,8 @@ def get_features(model, dataset, device):
     model.eval()
     features, labels = [], []
 
-    for x, y in DataLoader(dataset, batch_size=batch_size):
-        with torch.no_grad():
+    with torch.no_grad():
+        for x, y in DataLoader(dataset, batch_size=batch_size):
             features.append(model.features(x.to(device)).cpu())
             labels.append(y)
 
