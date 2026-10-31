@@ -1,4 +1,3 @@
-import numpy as np
 from torch.utils.data import ConcatDataset
 
 from data import splits, class_names, forget_class
@@ -38,9 +37,12 @@ if __name__ == "__main__":
     retrained = load_model("checkpoints/retrained_model.pt", device)
     grad_ascent = load_model("checkpoints/unlearn_gradient_ascent.pt", device)
     bad_teacher = load_model("checkpoints/unlearn_bad_teacher.pt", device)
+    fisher_prune_hard = load_model("checkpoints/unlearn_fisher_prune_hard.pt", device)
+    fisher_prune_reset = load_model("checkpoints/unlearn_fisher_prune_reset.pt", device)
 
     report("Original", original, retrained, test_retain, test_forget, device)
     report("Retrained", retrained, retrained, test_retain, test_forget, device)
     report("Gradient ascent", grad_ascent, retrained, test_retain, test_forget, device)
     report("Bad teacher", bad_teacher, retrained, test_retain, test_forget, device)
-    
+    report("Fisher prune hard", fisher_prune_hard, retrained, test_retain, test_forget, device)
+    report("Fisher prune reset", fisher_prune_reset, retrained, test_retain, test_forget, device)
