@@ -114,7 +114,18 @@ def random_pred_generator(batch_size, num_classes=10, noise_std=0.02, device=Non
 
 def bad_teacher(model, train_forget, train_retain, device,
                 epochs=1, lr=0.001, batch_size=128, retain_ratio=0.3, noise_std=0.02):
+    '''
+    In this distillation based approach, we use:
+    1. student- the model being unlearned (a copy of the original model)
+    2. good- a frozen copy of the original model
+    3. dumb targets- a noisy uniform distribution (random_pred_generator) acting as the incompetent teacher
 
+    On the forget set (lu=1)- minimise the KL divergence between the student and the dumb
+    targets (which do not have any knowledge of cats, the target class).
+    On the retain subset (lu=0)- minimise the KL divergence between the student and the good teacher,
+    essentially acting as a healing and knowledge retention step.
+    '''
+    
     student = copy.deepcopy(model).to(device)
     good = copy.deepcopy(model).to(device).eval()
 
