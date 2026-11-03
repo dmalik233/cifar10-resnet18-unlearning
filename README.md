@@ -145,7 +145,7 @@ cifar10-resnet18-unlearning/
 ```
 
 ### Environment Setup
-Clone the repository, create a virtual environment, and install the dependencies from `requirements.txt`[cite: 6]:
+Clone the repository, create a virtual environment, and install the dependencies from `requirements.txt`:
 
 ```bash
 git clone https://github.com/dmalik233/cifar10-resnet18-unlearning.git
