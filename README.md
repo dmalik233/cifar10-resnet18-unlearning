@@ -8,8 +8,7 @@ We compare these baselines against **Fisher Information Pruning** (including an 
 1. **Output Space (`evaluate.py`):** Retain/Forget Accuracy, Jensen-Shannon (JS) Divergence against a Retrained-from-Scratch baseline, prediction distributions on forgotten `cat` images, and Confusion Matrices.
 2. **Latent Representation Space (`probe.py`):** Linear probing on frozen 512-dimensional penultimate (`features`) embeddings to check how linearly separable `cat` features remain after unlearning.
 3. **Relearning Speed (`relearn.py`):** Fine-tuning on a subset of `1,000` `cat` images alongside retain data for 300 steps  to test whether `cat` features were actually removed or just disconnected from the final classifier.
-
----
+> Note that MIA is omitted as a metric here as it tests whether a specific sample was in the training set. In this project, the forget set is the entire cat class, and the retrained reference never saw any cat, so train and test cats are both unseen to it. An attack on any of these models collapses into "cat vs. not cat" rather than membership (all unlearned models already sit at ~0% cat accuracy). MIA is better suited to random sample unlearning, where forgotten points should ideally resemble held out data. This study instead audits whether the model still *knows the concept*, through linear probing and relearning.---
 
 ## 1. Architecture & Dataset Split
 
