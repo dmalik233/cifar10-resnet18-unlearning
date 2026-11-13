@@ -88,6 +88,8 @@ When the **Retrained** baseline (which never saw a `cat`) is given test `cat` im
 | **Bad Teacher** | **20.3%** | 4.7% | 10.8% | **0.9%** | 6.9% | 11.4% | **28.7%** | 6.5% | 7.1% | 2.7% |
 | **Fisher (Hard)** | 4.4% | 0.9% | **7.4%** | **0.0%** | **9.7%** | **51.4%** | **18.8%** | 4.6% | 1.2% | 1.6% |
 | **Fisher (Reset)** | 3.9% | 0.4% | **7.3%** | **0.0%** | **10.4%** | **56.6%** | **13.6%** | 5.4% | 1.1% | 1.3% |
+| *Random Control (Hard)* | 2.5% | 0.6% | **11.6%** | **0.6%** | 7.7% | **58.1%** | **10.4%** | 3.9% | 3.6% | 1.0% |
+| *Random Control (Reset)* | 2.2% | 0.7% | **9.9%** | **0.4%** | 6.7% | **61.0%** | **11.1%** | 3.5% | 3.3% | 1.2% |
 
 * **Bad Teacher JS Divergence (`0.3832`):** Because Bad Teacher forces `cat` images toward a noisy uniform distribution, the model scatters `cat` predictions onto unrelated classes like `airplane` (`20.3%`) and `frog` (`28.7%`), resulting in a high JS divergence against the Retrained baseline.
 * **Pruning + Healing vs. Output JS Divergence:** Both Fisher models map forgotten cats onto the same animal neighbors as the Retrained model (`56.6%` dog, `13.6%` frog, `10.4%` deer in Fisher Reset), giving low forget JS divergence (`0.1717` Hard, `0.1506` Reset). However, the Random 50% Pruning controls produce nearly identical output behavior (`58.1%–61.0%` dog; `0.1701` and `0.1579` JS divergence). Output-level metrics therefore do not separate targeted Fisher selection from random pruning + `fc[3]` reset; only the latent probe and relearning tests below separate them.
@@ -101,6 +103,8 @@ When the **Retrained** baseline (which never saw a `cat`) is given test `cat` im
 | ![Gradient Ascent CM](results/cm_gradient_ascent.png) | ![Bad Teacher CM](results/cm_bad_teacher.png) |
 | **Fisher Method (Hard Pruning)** | **Fisher Method (Synaptic Reset)** |
 | ![Fisher Hard CM](results/cm_fisher_prune_hard.png) | ![Fisher Reset CM](results/cm_fisher_prune_reset.png) |
+| **Random Control (Hard Pruning)** | **Random Control (Synaptic Reset)** |
+| ![Random Hard CM](results/cm_random_prune_hard.png) | ![Random Reset CM](results/cm_random_prune_reset.png) |r Reset CM](results/cm_fisher_prune_reset.png) |
 
 ---
 
