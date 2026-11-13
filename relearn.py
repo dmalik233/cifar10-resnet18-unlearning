@@ -71,24 +71,39 @@ if __name__ == "__main__":
         "Bad teacher": "checkpoints/unlearn_bad_teacher.pt",
         "Fisher Method (hard)": "checkpoints/unlearn_fisher_prune_hard.pt",
         "Fisher Method (reset)": "checkpoints/unlearn_fisher_prune_reset.pt",
+        "Random Method (hard)": "checkpoints/unlearn_random_prune_hard.pt",
+        "Random Method (reset)": "checkpoints/unlearn_random_prune_reset.pt"
     }
 
     steps_x = list(range(0, 301, 10))
-    plt.axhline(y=orig_acc, color="black", linestyle="--", label="Original (baseline)")
+    all_accs = {}
 
     for name, path in models.items():
         set_seed(42)
         accs = relearn(load_model(path, device), few_cats, train_retain, test_forget, device)
+        all_accs[name] = accs
 
         score = reauc(accs, orig_acc)
         hit = next((s for s, a in zip(steps_x, accs) if a >= 0.75), ">300")
         print(f"{name}: start {accs[0]:.4f} | end {accs[-1]:.4f} | steps to 75%: {hit} | ReAUC: {score:.4f}")
 
-        plt.plot(steps_x, accs, label=name)
-
+    main_names = ["Retrained", "Gradient ascent", "Bad teacher", "Fisher Method (hard)", "Fisher Method (reset)"]
+    plt.axhline(y=orig_acc, color="black", linestyle="--", label="Original (baseline)")
+    for name in main_names:
+        plt.plot(steps_x, all_accs[name], label=name)
     plt.xlabel("fine-tuning steps")
     plt.ylabel("test accuracy on cats")
     plt.title("Relearning from 1000 cats")
-    plt.legend()
-    plt.savefig("results/relearn.png")
+    plt.legend(loc="center left", bbox_to_anchor=(1.02, 0.5))
+    plt.savefig("results/relearn.png", bbox_inches="tight")
+    plt.close()
+
+    plt.axhline(y=orig_acc, color="black", linestyle="--", label="Original (baseline)")
+    for name, accs in all_accs.items():
+        plt.plot(steps_x, accs, label=name)
+    plt.xlabel("fine-tuning steps")
+    plt.ylabel("test accuracy on cats")
+    plt.title("Relearning from 1000 cats")
+    plt.legend(loc="center left", bbox_to_anchor=(1.02, 0.5))
+    plt.savefig("results/relearn_prune_controls.png", bbox_inches="tight")
     plt.close()

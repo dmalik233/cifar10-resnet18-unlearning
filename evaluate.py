@@ -38,7 +38,9 @@ if __name__ == "__main__":
     grad_ascent = load_model("checkpoints/unlearn_gradient_ascent.pt", device)
     bad_teacher = load_model("checkpoints/unlearn_bad_teacher.pt", device)
     fisher_prune_hard = load_model("checkpoints/unlearn_fisher_prune_hard.pt", device)
-    fisher_prune_reset = load_model("checkpoints/unlearn_fisher_prune_reset.pt", device)
+    fisher_prune_reset = load_model("checkpoints/unlearn_fisher_prune_reset.pt", device)  
+    random_prune_hard = load_model("checkpoints/unlearn_random_prune_hard.pt", device)
+    random_prune_reset = load_model("checkpoints/unlearn_random_prune_reset.pt", device)
 
     report("Original", original, retrained, test_retain, test_forget, device)
     report("Retrained", retrained, retrained, test_retain, test_forget, device)
@@ -46,3 +48,5 @@ if __name__ == "__main__":
     report("Bad teacher", bad_teacher, retrained, test_retain, test_forget, device)
     report("Fisher prune hard", fisher_prune_hard, retrained, test_retain, test_forget, device)
     report("Fisher prune reset", fisher_prune_reset, retrained, test_retain, test_forget, device)
+    report("Random prune hard", random_prune_hard, retrained, test_retain, test_forget, device)
+    report("Random prune reset", random_prune_reset, retrained, test_retain, test_forget, device)

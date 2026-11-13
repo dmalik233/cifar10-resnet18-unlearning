@@ -36,7 +36,9 @@ if __name__ == "__main__":
         "Gradient ascent": "checkpoints/unlearn_gradient_ascent.pt",
         "Bad teacher": "checkpoints/unlearn_bad_teacher.pt",
         "Fisher Method (hard)": "checkpoints/unlearn_fisher_prune_hard.pt",
-        "Fisher Method (reset)": "checkpoints/unlearn_fisher_prune_reset.pt"
+        "Fisher Method (reset)": "checkpoints/unlearn_fisher_prune_reset.pt",
+        "Random Method (hard)": "checkpoints/unlearn_random_prune_hard.pt",
+        "Random Method (reset)": "checkpoints/unlearn_random_prune_reset.pt"
     }
 
     for name, path in models.items():

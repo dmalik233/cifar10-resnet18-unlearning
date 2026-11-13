@@ -58,7 +58,6 @@ def grad_asc(model, train_forget, train_retain, device, max_batch=100, stop_acc=
     print(f"Pre calibration train forget acc: {get_accuracy(model, train_forget, device):.4f}")
     print("Recalibrating BatchNorm on retain subset before unlearning...")
     recalibrate_bn(model, loader_retain, device)
-    
     print(f"Post calibration train forget acc: {get_accuracy(model, train_forget, device):.4f}")
 
     # Separate SGD optimizers
@@ -97,10 +96,19 @@ def grad_asc(model, train_forget, train_retain, device, max_batch=100, stop_acc=
                 if forget_acc <= stop_acc or batch_count == max_batch:
                     reason = f"Target forget accuracy {stop_acc} reached." if forget_acc <= stop_acc else "Max batch count reached."
                     print(reason)
-                    print(f"Stopping at batch {batch_count} -> forget acc: {forget_acc:.4f}")
-                    
+                    print(f"Stopping at batch {batch_count} -> forget acc: {forget_acc:.4f}")              
+
                     full_retain_acc = get_accuracy(model, train_retain, device)
-                    print(f"Final full retain acc: {full_retain_acc:.4f}")
+                    full_forget_acc = get_accuracy(model, train_forget, device)
+                    print(f"Final full train retain acc: {full_retain_acc:.4f} | train forget acc : {full_forget_acc:.4f}")
+
+                    # diagnostic check: post-ascent BN recalibration
+                    recal_copy = copy.deepcopy(model)
+                    recalibrate_bn(recal_copy, DataLoader(retain_subset, batch_size=128), device)
+                    recal_retain = get_accuracy(recal_copy, train_retain, device)
+                    recal_forget = get_accuracy(recal_copy, train_forget, device)
+                    print(f"--(Diagnostic) Post-ascent BN recalibration--")
+                    print(f"full train retain acc: {recal_retain:.4f} | full train forget acc: {recal_forget:.4f}")
                     return model.eval()
 
 
@@ -207,7 +215,7 @@ def get_fisher_diagonal(model, dataloader, device):
 
 def fisher_prune(model, train_forget, train_retain, device,
                  prune_ratio=0.50, heal_epochs=2, lr=1e-3, batch_size=64, retain_size=5000,
-                 lock_mask=True):
+                 lock_mask=True, selection_mode="fisher"):
     """
     Prunes 4D conv and downsample layers in layer3, layer4, and layer2.0.downsample.
     Early layers (conv1, layer1, layer2 (except downsample)) are left intact as they extract simple,
@@ -216,6 +224,10 @@ def fisher_prune(model, train_forget, train_retain, device,
 
     lock_mask: if True (hard pruning), pruned weights are kept locked at 0 during healing.
                if False (synaptic reset), pruned weights are allowed to update on retain data.
+    
+    selection_mode: "fisher" (prunes top prune_ratio by F_forget / F_retain)
+                    "random" (control: prunes random prune_ratio of the exact same layers)
+
     """
     model = copy.deepcopy(model).to(device)
     criterion = nn.CrossEntropyLoss()
@@ -227,20 +239,28 @@ def fisher_prune(model, train_forget, train_retain, device,
     loader_forget = DataLoader(train_forget, batch_size=batch_size, shuffle=True)
     loader_retain = DataLoader(retain_subset, batch_size=batch_size, shuffle=True)
 
-    f_forget = get_fisher_diagonal(model, loader_forget, device)
-    f_retain = get_fisher_diagonal(model, loader_retain, device)
+    if selection_mode == "fisher":
+        f_forget = get_fisher_diagonal(model, loader_forget, device)
+        f_retain = get_fisher_diagonal(model, loader_retain, device)
+    else:
+        pass
+
 
     masks = {}
     with torch.no_grad():
         for name, p in model.named_parameters():
             if name=="layer2.0.downsample.0.weight" or (("layer3" in name or "layer4" in name) and p.dim()==4):
-                score = f_forget[name] / (f_retain[name] + 1e-8)
+                if selection_mode == "fisher":
+                    score = f_forget[name] / (f_retain[name] + 1e-8)
+                else:
+                    score = torch.rand_like(p)
+ 
                 thresh = torch.quantile(score.flatten(), 1.0 - prune_ratio)
                 mask = score >= thresh
 
                 p[mask] = 0.0
                 masks[name] = mask
-                print(f"{name}: pruned {mask.sum().item()}/{mask.numel()}")
+                print(f"{name} ({selection_mode}): pruned {mask.sum().item()}/{mask.numel()}")
 
             elif "fc" in name:
                 # reset forget class output weights, leave unmasked so healing pushes logits down
@@ -315,3 +335,15 @@ if __name__=="__main__":
     model = fisher_prune(original, train_forget, train_retain, device, lock_mask=False)
     torch.save(model.state_dict(), "checkpoints/unlearn_fisher_prune_reset.pt")
     print("Fisher prune (reset) model checkpoint saved.")
+
+    set_seed(42)
+    print("\n--Random pruning control (hard) based unlearning--")
+    model = fisher_prune(original, train_forget, train_retain, device, lock_mask=True, selection_mode="random")
+    torch.save(model.state_dict(), "checkpoints/unlearn_random_prune_hard.pt")
+    print("Random prune (hard) model checkpoint saved.")
+
+    set_seed(42)
+    print("\n--Random pruning control (synaptic reset) based unlearning--")
+    model = fisher_prune(original, train_forget, train_retain, device, lock_mask=False, selection_mode="random")
+    torch.save(model.state_dict(), "checkpoints/unlearn_random_prune_reset.pt")
+    print("Random prune (reset) model checkpoint saved.")
