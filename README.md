@@ -104,7 +104,7 @@ When the **Retrained** baseline (which never saw a `cat`) is given test `cat` im
 | **Fisher Method (Hard Pruning)** | **Fisher Method (Synaptic Reset)** |
 | ![Fisher Hard CM](results/cm_fisher_prune_hard.png) | ![Fisher Reset CM](results/cm_fisher_prune_reset.png) |
 | **Random Control (Hard Pruning)** | **Random Control (Synaptic Reset)** |
-| ![Random Hard CM](results/cm_random_prune_hard.png) | ![Random Reset CM](results/cm_random_prune_reset.png) |r Reset CM](results/cm_fisher_prune_reset.png) |
+| ![Random Hard CM](results/cm_random_prune_hard.png) | ![Random Reset CM](results/cm_random_prune_reset.png) |
 
 ---
 
@@ -151,12 +151,13 @@ cifar10-resnet18-unlearning/
 ├── .gitignore               
 ├── checkpoints/             # Saved .pt model state dictionaries
 └── results/                 # Generated confusion matrices and relearning plots
+```
 
 ### Environment Setup
 Clone the repository, create a virtual environment, and install the dependencies from `requirements.txt`:
 
 ```bash
-git clone [https://github.com/dmalik233/cifar10-resnet18-unlearning.git](https://github.com/dmalik233/cifar10-resnet18-unlearning.git)
+git clone https://github.com/dmalik233/cifar10-resnet18-unlearning.git
 cd cifar10-resnet18-unlearning
 
 # Create and activate virtual environment (macOS / Linux)
