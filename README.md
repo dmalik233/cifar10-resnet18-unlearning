@@ -1,10 +1,10 @@
 # Machine Unlearning on CIFAR-10 (ResNet-18): Output vs. Latent Space Audits
 
-An empirical study and PyTorch implementation of **Class-Level Machine Unlearning** on CIFAR-10 (forgetting class `3`: `cat`) using a **ResNet-18** backbone. This repository builds on my earlier [MNIST Unlearning project](https://github.com/dmalik233/MNIST-Unlearning), scaling the same evaluation pipeline from a small 4-layer CNN to a deeper residual network on CIFAR-10.
+An empirical study and PyTorch implementation of Class-Level Machine Unlearning on CIFAR-10 (forgetting class 3: `cat`) using a ResNet-18 backbone. This repository builds on my earlier [MNIST Unlearning project](https://github.com/dmalik233/MNIST-Unlearning), scaling the same evaluation pipeline from a small 4-layer CNN to a deeper residual network on CIFAR-10.
 
-Like the MNIST study, this project looks at why **output-space metrics alone can be misleading** when evaluating unlearning. Methods like **Gradient Ascent** (`0.8%` test forget accuracy) and **Bad Teacher Distillation** (`0.9%` test forget accuracy) successfully suppress `cat` predictions at the output layer, but leave the underlying feature representations in the backbone largely intact.
+Like the MNIST study, this project looks at why output-space metrics alone can be misleading when evaluating unlearning. Methods like Gradient Ascent (0.8% test forget accuracy) and Bad Teacher Distillation (0.9% test forget accuracy) successfully suppress `cat` predictions at the output layer, but leave the underlying feature representations in the backbone largely intact.
 
-We compare these baselines against **Fisher Information Pruning** (including an ablation between **Hard Pruning** and **Synaptic Reset**, plus random pruning controls) and evaluate all checkpoints across three tests:
+We compare these baselines against Fisher Information Pruning (including an ablation between Hard Pruning and Synaptic Reset, plus random pruning controls) and evaluate all checkpoints across three tests:
 1. **Output Space (`evaluate.py`):** Retain/Forget Accuracy, Jensen-Shannon (JS) Divergence against a Retrained-from-Scratch baseline, prediction distributions on forgotten `cat` images, and Confusion Matrices.
 2. **Latent Representation Space (`probe.py`):** Linear probing on frozen 512-dimensional penultimate (`features`) embeddings to check how linearly separable `cat` features remain after unlearning.
 3. **Relearning Speed (`relearn.py`):** Fine-tuning on a subset of `1,000` `cat` images alongside retain data for 300 steps to test whether `cat` features were actually removed or just disconnected from the final classifier.
@@ -13,7 +13,7 @@ We compare these baselines against **Fisher Information Pruning** (including an 
 
 ## 1. Architecture & Dataset Split
 
-We use a CIFAR-adapted **ResNet-18** (`model.py`, **11,173,962 trainable parameters**):
+We use a CIFAR-adapted ResNet-18 (`model.py`, 11,173,962 trainable parameters):
 * Because standard ImageNet ResNet-18 downsamples too aggressively for $32\times 32$ images, `conv1` is replaced with a $3\times 3$ convolution (`stride=1, padding=1`) and `maxpool` is replaced with `nn.Identity()`.
 * `layer1` to `layer4`: Standard `BasicBlock` residual stages ($64 \to 128 \to 256 \to 512$ channels).
 * `features(x)`: Returns the 512-dimensional embedding after `avgpool`.
@@ -78,7 +78,7 @@ We then heal the model on the `5,000`-image retain subset for 2 epochs (`lr=1e-3
 ## 4. Analysis
 
 ### 4.1 Output-Space Behaviour & Prediction Distributions (`evaluate.py`)
-When the **Retrained** baseline (which never saw a `cat`) is given test `cat` images, it mostly predicts visually similar animal classes—primarily **`dog` (56.2%)**, **`frog` (15.2%)**, **`deer` (9.3%)**, and **`bird` (9.2%)**.
+When the Retrained baseline (which never saw a `cat`) is given test `cat` images, it mostly predicts visually similar animal classes, primarily `dog` (56.2%), `frog` (15.2%), `deer` (9.3%), and `bird` (9.2%).
 
 | Model | `airplane` | `auto` | `bird` | **`cat` (Target)** | `deer` | `dog` | `frog` | `horse` | `ship` | `truck` |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
